@@ -55,14 +55,60 @@ clsProvider.ExecuteNonQuery("UPDATE dbo.test1 SET Name=@p2 WHERE ID=@p1;",dictPa
 
 ### Execute a Scalar query (single value)
 ```vb
+Option Explicit
+
+Dim clsProvider As AdoDbDataProvider
+Dim dictParams As Scripting.Dictionary
+Dim returnValue As Variant
+
+'Initialisation code removed for brevity...
+
+Set dictParams = New Scripting.Dictionary
+dictParams.Add "p1", 1
+
+returnValue = clsProvider.ExecuteScalar("SELECT LastUpdateOn FROM dbo.test1 WHERE ID=@p1;",dictParams)
 ```
 
 ### Execute a Recordset query (DataTable resultset)
 ```vb
+Option Explicit
+
+Dim clsProvider As AdoDbDataProvider
+Dim dictParams As Scripting.Dictionary
+Dim rs As ADODB.Recordset
+
+'Initialisation code removed for brevity...
+
+Set dictParams = New Scripting.Dictionary
+dictParams.Add "p1", 1
+
+Set rs = clsProvider.GetRecordset("SELECT * FROM dbo.test1 WHERE ID=@p1;",dictParams)
 ```
 
 ### Reusing connections
+If your application needs to keep an active connection open to the database consider using
+the additional methods of "OnConnection" to reuse the same connection object. This prevents
+creating a new connection object from the pool for each query to the database, an example is shown below:
+
 ```vb
+Option Explicit
+
+Dim clsProvider As AdoDbDataProvider
+Dim dictParams As Scripting.Dictionary
+Dim rs As ADODB.Recordset
+Dim conn As ADODB.Connection
+
+'Initialisation code removed for brevity...
+
+Set dictParams = New Scripting.Dictionary
+dictParams.Add "p1", 1
+
+Set conn = clsProvider.GetDbConnection()
+
+'... Run multiple statements passing in the connection.
+
+'Pass the active connection into GetRecordset using its overload method.
+Set rs = clsProvider.GetRecordsetOnConnection(conn, "SELECT * FROM dbo.test1 WHERE ID=@p1;",dictParams)
 ```
 
 ## Contributing

@@ -71,7 +71,7 @@ Public Function GetDbConnection(Optional ByVal connectionTimeout As Integer = co
     Set GetConnection = conn
 End Function
 
-Public Function ExecuteNonQuery(ByVal sql As String, Optional ByVal params As Variant) As Long
+Public Function ExecuteNonQuery(ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As Long
     Dim conn As ADODB.Connection
     Dim affectedRows As Long
 
@@ -84,7 +84,7 @@ Public Function ExecuteNonQuery(ByVal sql As String, Optional ByVal params As Va
     ExecuteNonQuery = affectedRows
 End Function
 
-Public Function ExecuteNonQueryOnConnection(ByRef conn As ADODB.Connection, ByVal sql As String, Optional ByVal params As Variant) As Long
+Public Function ExecuteNonQueryOnConnection(ByRef conn As ADODB.Connection, ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As Long
     Dim cmd As ADODB.Command
     Dim affectedRows As Long
 
@@ -97,7 +97,7 @@ Public Function ExecuteNonQueryOnConnection(ByRef conn As ADODB.Connection, ByVa
     ExecuteNonQuery = affectedRows
 End Function
 
-Public Function ExecuteScalar(ByVal sql As String, Optional ByVal params As Variant) As Variant
+Public Function ExecuteScalar(ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As Variant
     Dim conn As ADODB.Connection
     Dim value As Variant
 
@@ -110,7 +110,7 @@ Public Function ExecuteScalar(ByVal sql As String, Optional ByVal params As Vari
     ExecuteScalar = value
 End Function
 
-Public Function ExecuteScalarOnConnection(ByRef conn As ADODB.Connection, ByVal sql As String, Optional ByVal params As Variant) As Variant
+Public Function ExecuteScalarOnConnection(ByRef conn As ADODB.Connection, ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As Variant
     Dim cmd As ADODB.Command
     Dim rs As ADODB.Recordset
     Dim value As Variant
@@ -130,7 +130,7 @@ Public Function ExecuteScalarOnConnection(ByRef conn As ADODB.Connection, ByVal 
     ExecuteScalar = value
 End Function
 
-Public Function GetRecordset(ByVal sql As String, Optional ByVal params As Variant) As ADODB.Recordset
+Public Function GetRecordset(ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As ADODB.Recordset
     Dim conn As ADODB.Connection
     Dim rs As ADODB.Recordset
 
@@ -149,7 +149,6 @@ Public Function GetRecordsetOnConnection(ByRef conn As ADODB.Connection, ByVal s
 
     Set cmd = GetDbCommand(conn, sql, params)
     Set rs = cmd.Execute
-    Set cmd = Nothing
 
     Set GetRecordsetOnConnection = rs
 End Function
