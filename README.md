@@ -1,36 +1,74 @@
+# MS Access Utilities
+
+## What is this?
+I recently completed some technical analysis on a Microsoft Access database that was critical to the customers operations and was still actively being developed.
+
+This collection of VBS modules was developed in response to some of the findings, so that the community can benefit from some simple utility modules.
+
 ## Installation
 
-To install the AdoDbDataProvider, you need to import the `.bas` file into your MS Access project:
+To install any of the modules e.g. AdoDbDataProvider, you need to import the `.bas` file into your MS Access project:
 
 1. Open your MS Access database.
 2. Press `Alt + F11` to open the VBA editor.
 3. In the VBA editor, go to `File -> Import File...`.
 4. Select the `AdoDbDataProvider.bas` file and click `Open`.
 
+.bas was selected as the format for this repo because it requires the least administrative burden for MS Access developers.
+
+Alternatives:
+* C++ DLL - requires regsvr32 registration that requires elevated privleges often disabled on CyberSecurity conscious organisations.
+* .NET DLL - requires the .NET runtime to be installed on the host machine, which requires elevated priviledges. Or, bundling the .NET runtime with the assembly, bloating the library footprint.
+
+However, if enough community support of a DLL is raised, they can be developed on a further version.
+
 ## Usage
 
 ### Initialization
-```vba
+```vb
+Option Explicit
+
+Dim clsProvider As AdoDbDataProvider
+
+Set clsProvider = New AdoDbDataProvider
+
+clsProvider.Initialize "Data Source=localhost;Initial Catalog=test;Integrated Security=False;User Id=user;Password=pwd;", 0, 30
+
+' Code removed for brevity...
 ```
 
 ### Execute a Query (no resultset)
-```vba
+```vb
+Option Explicit
+
+Dim clsProvider As AdoDbDataProvider
+Dim dictParams As Scripting.Dictionary
+
+'Initialisation code removed for brevity...
+
+Set dictParams = New Scripting.Dictionary
+dictParams.Add "p1", 1
+dictParams.Add "p2", "Two"
+
+clsProvider.ExecuteNonQuery("UPDATE dbo.test1 SET Name=@p2 WHERE ID=@p1;",dictParams)
 ```
 
 ### Execute a Scalar query (single value)
-```vba
+```vb
 ```
 
 ### Execute a Recordset query (DataTable resultset)
-```vba
+```vb
 ```
 
 ### Reusing connections
-```vba
+```vb
 ```
 
 ## Contributing
-We welcome contributions to this project! If you have an idea for a new feature or have found a bug, please open an issue on GitHub. If you would like to contribute code, feel free to fork the repository and submit a pull request. Make sure to follow our coding guidelines and include tests for any new features or bug fixes.
+We welcome contributions to this
+
+ project! If you have an idea for a new feature or have found a bug, please open an issue on GitHub. If you would like to contribute code, feel free to fork the repository and submit a pull request. Make sure to follow our coding guidelines and include tests for any new features or bug fixes.
 
 ## License
 
