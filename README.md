@@ -7,12 +7,13 @@ This collection of VBS modules was developed in response to some of the findings
 
 ## Installation
 
-To install any of the modules e.g. AdoDbDataProvider, you need to import the `.cls` file into your MS Access project:
+To install any of the modules e.g. SqlServerDataProvider, you need to import the `.cls` file into your MS Access project:
 
 1. Open your MS Access database.
 2. Press `Alt + F11` to open the VBA editor.
 3. In the VBA editor, go to `File -> Import File...`.
-4. Select the `AdoDbDataProvider.cls` file and click `Open`.
+4. Select the `SqlServerDataProvider.cls` file and click `Open`.
+5. Ensure you have added a reference to Microsoft ActiveX Data Objects 6.1 Library and Microsoft Scripting Runtime.
 
 .cls was selected as the format for this repo because it requires the least administrative burden for MS Access developers.
 
@@ -28,11 +29,11 @@ However, if enough community support of a DLL is raised, they can be developed o
 ```vb
 Option Explicit
 
-Dim clsProvider As AdoDbDataProvider
+Dim clsProvider As SqlServerDataProvider
 
-Set clsProvider = New AdoDbDataProvider
+Set clsProvider = New SqlServerDataProvider
 
-clsProvider.Initialize "Data Source=localhost;Initial Catalog=test;Integrated Security=False;User Id=user;Password=pwd;", 0, 30
+clsProvider.Initialize "Provider=SQLOLEDB;Data Source=localhost;Initial Catalog=test;User ID=test;Password=test;", 0, 30
 
 ' Code removed for brevity...
 ```
@@ -41,7 +42,7 @@ clsProvider.Initialize "Data Source=localhost;Initial Catalog=test;Integrated Se
 ```vb
 Option Explicit
 
-Dim clsProvider As AdoDbDataProvider
+Dim clsProvider As SqlServerDataProvider
 Dim dictParams As Scripting.Dictionary
 
 'Initialisation code removed for brevity...
@@ -57,7 +58,7 @@ clsProvider.ExecuteNonQuery("UPDATE dbo.test1 SET Name=@p2 WHERE ID=@p1;",dictPa
 ```vb
 Option Explicit
 
-Dim clsProvider As AdoDbDataProvider
+Dim clsProvider As SqlServerDataProvider
 Dim dictParams As Scripting.Dictionary
 Dim returnValue As Variant
 
@@ -73,7 +74,7 @@ returnValue = clsProvider.ExecuteScalar("SELECT LastUpdateOn FROM dbo.test1 WHER
 ```vb
 Option Explicit
 
-Dim clsProvider As AdoDbDataProvider
+Dim clsProvider As SqlServerDataProvider
 Dim dictParams As Scripting.Dictionary
 Dim rs As ADODB.Recordset
 
@@ -83,6 +84,12 @@ Set dictParams = New Scripting.Dictionary
 dictParams.Add "p1", 1
 
 Set rs = clsProvider.GetRecordset("SELECT * FROM dbo.test1 WHERE ID=@p1;",dictParams)
+rs.Open
+
+'...
+
+clsProvider.CleanUpRecordset rs
+
 ```
 
 ### Reusing connections
@@ -93,7 +100,7 @@ creating a new connection object from the pool for each query to the database, a
 ```vb
 Option Explicit
 
-Dim clsProvider As AdoDbDataProvider
+Dim clsProvider As SqlServerDataProvider
 Dim dictParams As Scripting.Dictionary
 Dim rs As ADODB.Recordset
 Dim conn As ADODB.Connection
@@ -109,6 +116,12 @@ Set conn = clsProvider.GetDbConnection()
 
 'Pass the active connection into GetRecordset using its overload method.
 Set rs = clsProvider.GetRecordsetOnConnection(conn, "SELECT * FROM dbo.test1 WHERE ID=@p1;",dictParams)
+rs.Open
+
+'...
+
+clsProvider.CleanUpRecordset rs
+
 ```
 
 ## Contributing
