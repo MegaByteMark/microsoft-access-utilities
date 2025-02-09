@@ -7,14 +7,14 @@ This collection of VBS modules was developed in response to some of the findings
 
 ## Installation
 
-To install any of the modules e.g. AdoDbDataProvider, you need to import the `.bas` file into your MS Access project:
+To install any of the modules e.g. AdoDbDataProvider, you need to import the `.cls` file into your MS Access project:
 
 1. Open your MS Access database.
 2. Press `Alt + F11` to open the VBA editor.
 3. In the VBA editor, go to `File -> Import File...`.
-4. Select the `AdoDbDataProvider.bas` file and click `Open`.
+4. Select the `AdoDbDataProvider.cls` file and click `Open`.
 
-.bas was selected as the format for this repo because it requires the least administrative burden for MS Access developers.
+.cls was selected as the format for this repo because it requires the least administrative burden for MS Access developers.
 
 Alternatives:
 * C++ DLL - requires regsvr32 registration that requires elevated privleges often disabled on CyberSecurity conscious organisations.

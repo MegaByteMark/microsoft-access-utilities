@@ -1,5 +1,5 @@
 ' MIT License
-' 
+'
 ' Copyright (c) 2025 MegaByteMark (https://github.com/MegaByteMark)
 ' Permission is hereby granted, free of charge, to any person obtaining a copy
 ' of this software and associated documentation files (the "Software"), to deal
@@ -7,10 +7,10 @@
 ' to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 ' copies of the Software, and to permit persons to whom the Software is
 ' furnished to do so, subject to the following conditions:
-' 
+'
 ' The above copyright notice and this permission notice shall be included in all
 ' copies or substantial portions of the Software.
-' 
+'
 ' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 ' IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 ' FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -19,11 +19,12 @@
 ' OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ' SOFTWARE.
 
+Option Compare Database
 Option Explicit
 
 Private connString As String
-Private connTimeout As Integer = 0
-Private cmdTimeout As Integer = 0
+Private connTimeout As Integer
+Private cmdTimeout As Integer
 
 Public Property Let ConnectionString(value As String)
     connString = value
@@ -33,29 +34,29 @@ Public Property Get ConnectionString() As String
     ConnectionString = connString
 End Property
 
-Public Property Let ConnectionTimeout(value As Integer)
+Public Property Let connectionTimeout(value As Integer)
     connTimeout = value
 End Property
 
-Public Property Get ConnectionTimeout() As String
-    ConnectionTimeout = connTimeout
+Public Property Get connectionTimeout() As Integer
+    connectionTimeout = connTimeout
 End Property
 
 Public Property Let CommandTimeout(value As Integer)
     cmdTimeout = value
 End Property
 
-Public Property Get CommandTimeout() As String
+Public Property Get CommandTimeout() As Integer
     CommandTimeout = cmdTimeout
 End Property
 
 Public Sub Initialize(ByVal connString As String, Optional ByVal connTimeout As Integer = 0, Optional ByVal cmdTimeout As Integer = 0)
     ConnectionString = connString
-    ConnectionTimeout = connTimeout
+    connectionTimeout = connTimeout
     CommandTimeout = cmdTimeout
 End Sub
 
-Public Function GetDbConnection(Optional ByVal connectionTimeout As Integer = connTimeout) As ADODB.Connection
+Public Function GetDbConnection(Optional ByVal connectionTimeout As Integer = 30) As ADODB.Connection
     Dim conn As ADODB.Connection
 
     If ConnectionString = "" Then
@@ -64,11 +65,11 @@ Public Function GetDbConnection(Optional ByVal connectionTimeout As Integer = co
 
     Set conn = New ADODB.Connection
     conn.ConnectionString = ConnectionString
-    conn.ConnectionTimeout = connectionTimeout
+    conn.connectionTimeout = connectionTimeout
     
     conn.Open
     
-    Set GetConnection = conn
+    Set GetDbConnection = conn
 End Function
 
 Public Function ExecuteNonQuery(ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As Long
@@ -94,7 +95,7 @@ Public Function ExecuteNonQueryOnConnection(ByRef conn As ADODB.Connection, ByVa
 
     Set cmd = Nothing
 
-    ExecuteNonQuery = affectedRows
+    ExecuteNonQueryOnConnection = affectedRows
 End Function
 
 Public Function ExecuteScalar(ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As Variant
@@ -120,14 +121,14 @@ Public Function ExecuteScalarOnConnection(ByRef conn As ADODB.Connection, ByVal 
     Set rs = cmd.Execute
 
     If Not rs.EOF Then
-        value = rs.Fields(0).Value
+        value = rs.Fields(0).value
     End If
 
     rs.Close
     Set rs = Nothing
     Set cmd = Nothing
 
-    ExecuteScalar = value
+    ExecuteScalarOnConnection = value
 End Function
 
 Public Function GetRecordset(ByVal sql As String, Optional ByVal params As Scripting.Dictionary) As ADODB.Recordset
@@ -158,6 +159,7 @@ Public Function GetDbCommand(ByRef conn As ADODB.Connection, ByVal sql As String
     Dim paramName As String
     Dim paramValue As Variant
     Dim paramType As DataTypeEnum
+    Dim key As Variant
 
     Set cmd = New ADODB.Command
     cmd.ActiveConnection = conn
@@ -166,9 +168,15 @@ Public Function GetDbCommand(ByRef conn As ADODB.Connection, ByVal sql As String
     cmd.CommandTimeout = CommandTimeout
 
     If Not params Is Nothing Then
-        For Each key In dict.Keys
-            paramName = "@" & key
-            paramValue = dict(key)
+        For Each key In params.Keys
+            If Not Left(CStr(key), 1) = "@" Then
+                paramName = "@"
+            Else
+                paramName = ""
+            End If
+        
+            paramName = paramName & key
+            paramValue = params(key)
 
             cmd.Parameters.Append GetDbParameter(paramName, paramValue)
         Next key
@@ -177,20 +185,24 @@ Public Function GetDbCommand(ByRef conn As ADODB.Connection, ByVal sql As String
     Set GetDbCommand = cmd
 End Function
 
-Public Function GetDbParameter (ByVal name As String, ByVal value As Variant) As ADODB.Parameter
+Public Function GetDbParameter(ByVal name As String, ByVal value As Variant) As ADODB.Parameter
     Dim param As ADODB.Parameter
     Dim paramType As DataTypeEnum
 
-    if(value = Null) Then
+    If (value = Null) Then
         paramType = adVariant
     Else
         paramType = GetDataTypeEnumFromVariant(value)
     End If
 
     Set param = New ADODB.Parameter
-    param.Name = name
+    param.name = name
     param.Type = paramType
-    param.Value = value
+    param.value = value
+    
+    If paramType = adVarChar Then
+        param.Size = 2147483646
+    End If
 
     Set GetDbParameter = param
 End Function
