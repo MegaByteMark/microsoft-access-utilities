@@ -160,10 +160,14 @@ Public Function GetDbCommand(ByRef conn As ADODB.Connection, ByVal sql As String
     Dim paramValue As Variant
     Dim paramType As DataTypeEnum
     Dim key As Variant
+    Dim extendedSql As String
+
+    'We will declare some parameters so the user can use named parameters
+    'like .NET does
+    extendedSql = ""
 
     Set cmd = New ADODB.Command
     cmd.ActiveConnection = conn
-    cmd.CommandText = sql
     cmd.CommandType = adCmdText
     cmd.CommandTimeout = CommandTimeout
 
@@ -179,8 +183,13 @@ Public Function GetDbCommand(ByRef conn As ADODB.Connection, ByVal sql As String
             paramValue = params(key)
 
             cmd.Parameters.Append GetDbParameter(paramName, paramValue)
+
+            extendedSql = extendedSql & "DECLARE " & paramName & " " & GetSqlServerTypeFromDataTypeEnum(GetDataTypeEnumFromVariant(paramValue)) & " = ?;" & vbCrLf
         Next key
     End If
+
+    extendedSql = extendedSql & vbCrLf & sql
+    cmd.CommandText = extendedSql
 
     Set GetDbCommand = cmd
 End Function
@@ -205,6 +214,27 @@ Public Function GetDbParameter(ByVal name As String, ByVal value As Variant) As 
     End If
 
     Set GetDbParameter = param
+End Function
+
+Private Function GetSqlServerTypeFromDataTypeEnum(ByVal dataType As DataTypeEnum) As String
+    Select Case dataType
+        Case adInteger
+            GetSqlServerTypeFromDataTypeEnum = "INT"
+        Case adBigInt
+            GetSqlServerTypeFromDataTypeEnum = "BIGINT"
+        Case adSingle
+            GetSqlServerTypeFromDataTypeEnum = "REAL"
+        Case adDouble
+            GetSqlServerTypeFromDataTypeEnum = "FLOAT"
+        Case adCurrency
+            GetSqlServerTypeFromDataTypeEnum = "MONEY"
+        Case adDate
+            GetSqlServerTypeFromDataTypeEnum = "DATETIMEOFFSET"
+        Case adBoolean
+            GetSqlServerTypeFromDataTypeEnum = "BIT"
+        Case Else
+            GetSqlServerTypeFromDataTypeEnum = "VARCHAR(MAX)"
+    End Select
 End Function
 
 Private Function GetDataTypeEnumFromVariant(ByVal value As Variant) As DataTypeEnum
