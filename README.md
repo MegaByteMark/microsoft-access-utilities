@@ -1,9 +1,9 @@
 # MS Access Utilities
 
 ## What is this?
-I recently completed some technical analysis on a Microsoft Access database that was critical to the customers operations and was still actively being developed.
-
-This collection of VBS modules was developed in response to some of the findings, so that the community can benefit from some simple utility modules.
+I've recently been working with a Microsoft Access database that was critical to the customers operations and was still actively being developed.
+Whilst working on this database it became clear that some of the features we take for granted in modern languages like C# are not available in VBA and there are limited libraries and plugins to support developers.
+This collection of VBA modules was developed in response in an attempt to address some of the challenges I encountered, so that the community can benefit from some simple utility modules.
 
 ## Installation
 

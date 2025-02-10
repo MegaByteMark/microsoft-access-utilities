@@ -332,13 +332,14 @@ End Function
 
 ' Cleans up a recordset by closing it and its connection.
 ' @param rs The ADODB.Recordset object to clean up.
-Public Sub CleanUpRecordset(ByRef rs As ADODB.Recordset)
+' @param closeConnection Whether to close the active connection (optional).
+Public Sub CleanUpRecordset(ByRef rs As ADODB.Recordset, Optional ByVal closeConnection As Boolean = True)
     If Not rs Is Nothing Then
         If rs.State = adStateOpen Then
             rs.Close
         End If
 
-        If rs.ActiveConnection.State = adStateOpen Then
+        If rs.ActiveConnection.State = adStateOpen And closeConnection Then
             rs.ActiveConnection.Close
         End If
 
