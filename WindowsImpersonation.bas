@@ -37,6 +37,10 @@ Private Declare PtrSafe Function RevertToSelf Lib "advapi32.dll" () As Long
 
 Private Declare PtrSafe Function CloseHandle Lib "kernel32.dll" ( _
     ByVal hObject As Long) As Long
+    
+Private Declare PtrSafe Function GetUserName Lib "advapi32.dll" Alias "GetUserNameA" ( _
+ByVal lpBuffer As String, _
+ByRef nSize As Long) As Long
 
 Public Function ImpersonateUser(username As String, domain As String, password As String) As Long
     Dim hToken As Long
@@ -54,7 +58,7 @@ Public Function ImpersonateUser(username As String, domain As String, password A
     result = ImpersonateLoggedOnUser(hToken)
 
     If result = 0 Then
-        Err.Raise vbObjectError + 2, "ImpersonateUser", "ImpersonateLoggedOnUser failed with error: " & Err.LastDllError 
+        Err.Raise vbObjectError + 2, "ImpersonateUser", "ImpersonateLoggedOnUser failed with error: " & Err.LastDllError
         CloseHandle hToken
         Exit Function
     End If
@@ -80,3 +84,20 @@ Public Sub Revert(hToken As Long)
         Exit Sub
     End If
 End Sub
+
+Public Function GetCurrentContextUserName() As String
+    Dim buffer As String
+    Dim bufferSize As Long
+    Dim result As Long
+    
+    bufferSize = 255
+    buffer = String(bufferSize, vbNullChar)
+    
+    result = GetUserName(buffer, bufferSize)
+    
+    If result <> 0 Then
+        GetCurrentContextUserName = Left(buffer, bufferSize - 1)
+    Else
+        GetCurrentContextUserName = "Unknown User"
+    End If
+End Function
